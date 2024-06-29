@@ -1,0 +1,376 @@
+basePath: /api/v1
+definitions:
+  models.Group:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      todos:
+        items:
+          $ref: '#/definitions/models.ToDo'
+        type: array
+    type: object
+  models.ToDo:
+    properties:
+      due_date:
+        type: string
+      group_id:
+        type: integer
+      id:
+        type: integer
+      status:
+        type: string
+      title:
+        type: string
+    type: object
+host: localhost:8081
+info:
+  contact: {}
+  description: This is a sample server for a Product API.
+  title: Product API
+  version: "0.1"
+paths:
+  /groups:
+    get:
+      description: Get the list of all groups, including their associated ToDos. This
+        endpoint first tries to fetch data from the Redis cache; if not available,
+        it queries the database and caches the result.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Group'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Retrieve all groups
+      tags:
+      - groups
+    post:
+      consumes:
+      - application/json
+      description: Create a new group with the provided JSON data.
+      parameters:
+      - description: Group object to be created
+        in: body
+        name: group
+        required: true
+        schema:
+          $ref: '#/definitions/models.Group'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created group
+          schema:
+            $ref: '#/definitions/models.Group'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new group
+      tags:
+      - groups
+  /groups/{id}:
+    delete:
+      description: Delete a specific group identified by its ID.
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Group deleted
+          schema:
+            type: string
+        "404":
+          description: Group not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a group by ID
+      tags:
+      - groups
+    get:
+      description: Get details of a specific group, including its associated ToDos.
+        This endpoint first tries to fetch data from the Redis cache; if not available,
+        it queries the database and caches the result.
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Group'
+        "404":
+          description: Group not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Retrieve a group by ID
+      tags:
+      - groups
+    put:
+      consumes:
+      - application/json
+      description: Update the name of a specific group identified by its ID.
+      parameters:
+      - description: Group ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: New name for the group
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated group
+          schema:
+            $ref: '#/definitions/models.Group'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Group not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a group by ID
+      tags:
+      - groups
+  /health:
+    get:
+      description: Get the health status of the service and its dependencies (database
+        and Redis).
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "503":
+          description: Service Unavailable
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Health Check
+      tags:
+      - health
+  /todos:
+    get:
+      description: Get the list of all ToDos. This endpoint first tries to fetch data
+        from the Redis cache; if not available, it queries the database and caches
+        the result.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of ToDos
+          schema:
+            items:
+              $ref: '#/definitions/models.ToDo'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Retrieve all ToDos
+      tags:
+      - todos
+    post:
+      consumes:
+      - application/json
+      description: Create a new ToDo with the provided JSON data.
+      parameters:
+      - description: ToDo object to be created
+        in: body
+        name: todo
+        required: true
+        schema:
+          $ref: '#/definitions/models.ToDo'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created ToDo
+          schema:
+            $ref: '#/definitions/models.ToDo'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new ToDo
+      tags:
+      - todos
+  /todos/{id}:
+    delete:
+      description: Delete a specific ToDo identified by its ID.
+      parameters:
+      - description: ToDo ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ToDo deleted
+          schema:
+            type: string
+        "404":
+          description: ToDo not found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a ToDo by ID
+      tags:
+      - todos
+    get:
+      description: Get details of a specific ToDo identified by its ID. This endpoint
+        first tries to fetch data from the Redis cache; if not available, it queries
+        the database and caches the result.
+      parameters:
+      - description: ToDo ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ToDo details
+          schema:
+            $ref: '#/definitions/models.ToDo'
+        "404":
+          description: ToDo not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Retrieve a ToDo by ID
+      tags:
+      - todos
+    put:
+      consumes:
+      - application/json
+      description: Update details of a specific ToDo identified by its ID.
+      parameters:
+      - description: ToDo ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated ToDo object
+        in: body
+        name: todo
+        required: true
+        schema:
+          $ref: '#/definitions/models.ToDo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated ToDo
+          schema:
+            $ref: '#/definitions/models.ToDo'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: ToDo not found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a ToDo by ID
+      tags:
+      - todos
+  /todos/date/{date}:
+    get:
+      description: Get a list of ToDos that have a due date matching the specified
+        date.
+      parameters:
+      - description: 'Due date (format: YYYY-MM-DD)'
+        in: path
+        name: date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of ToDos
+          schema:
+            items:
+              $ref: '#/definitions/models.ToDo'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Retrieve ToDos by due date
+      tags:
+      - todos
+schemes:
+- http
+- https
+securityDefinitions:
+  Bearer:
+    description: Enter token in format Bearer <token>
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
